@@ -46,14 +46,34 @@ let g:miniBufExplMapWindowNavArrows=1
 
 map <F12> :call Do_CsTag()<CR>
 
-nmap <C-@>s :cs find s <C-R>=expand("<cword>")<CR><CR>:copen<CR>
+nmap <C-@>s :cs find s <C-R>=expand("<cword>")<CR><CR>
 nmap <C-@>g :cs find g <C-R>=expand("<cword>")<CR><CR>
-nmap <C-@>c :cs find c <C-R>=expand("<cword>")<CR><CR>:copen<CR>
-nmap <C-@>t :cs find t <C-R>=expand("<cword>")<CR><CR>:copen<CR>
-nmap <C-@>e :cs find e <C-R>=expand("<cword>")<CR><CR>:copen<CR>
-nmap <C-@>f :cs find f <C-R>=expand("<cfile>")<CR><CR>:copen<CR>
-nmap <C-@>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>:copen<CR>
-nmap <C-@>d :cs find d <C-R>=expand("<cword>")<CR><CR>:copen<CR>
+nmap <C-@>c :cs find c <C-R>=expand("<cword>")<CR><CR>
+nmap <C-@>t :cs find t <C-R>=expand("<cword>")<CR><CR>
+nmap <C-@>e :cs find e <C-R>=expand("<cword>")<CR><CR>
+nmap <C-@>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
+nmap <C-@>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+nmap <C-@>d :cs find d <C-R>=expand("<cword>")<CR><CR> 
+
+function LoadCscope()
+	if (executable("cscope") && has("cscope"))
+		let UpperPath = findfile("cscope.out", ".;")
+		if (!empty(UpperPath))
+			let path = strpart(UpperPath, 0, match(UpperPath, "cscope.out$") - 1)	
+			if (!empty(path))
+				let s:CurrentDir = getcwd()
+				let direct = strpart(s:CurrentDir, 0, 2) 
+				let s:FullPath = direct . path
+				let s:AFullPath = globpath(s:FullPath, "cscope.out")
+				let s:CscopeAddString = "cs add " . s:AFullPath . " " . s:FullPath 
+				execute s:CscopeAddString 
+			endif
+		endif
+	endif
+endfunction
+command LoadCscope call LoadCscope()
+call LoadCscope()
+au BufEnter /* call LoadCscope()
 function Do_CsTag()
     let dir = getcwd()
     if filereadable("tags")
